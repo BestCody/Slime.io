@@ -1,92 +1,92 @@
-"""Dino Game in Python
-
-A game similar to the famous Chrome Dino Game, built using pygame-ce.
-Made by intern: @bassemfarid, no one or nothing else. 🤖
-"""
-
 import pygame
-
-# Initialize Pygame and create a window
+import time
+import random
+import charactermovement
+import attackmechanism
+from Characters.Slime import slimeconstants
+from Characters.Skeletons import skeletonconstants
 pygame.init()
-screen = pygame.display.set_mode((800, 400))
+
+desktop_size = pygame.display.get_desktop_sizes()
+screen = pygame.display.set_mode()
 clock = pygame.time.Clock()
-running = True  # Pygame main loop, kills pygame when False
+screen.fill("white")
 
-# Game state variables
-is_playing = True  # Whether in game or in menu
-GROUND_Y = 300  # The Y-coordinate of the ground level
-JUMP_GRAVITY_START_SPEED = -20  # The speed at which the player jumps
-players_gravity_speed = 0  # The current speed at which the player falls
+character = pygame.image.load("Characters/Slime/slimestandingstill.png").convert_alpha()
+charactermovingright = pygame.image.load("Characters/Slime/slimemovingright.png").convert_alpha()
+charactermovingleft = pygame.image.load("Characters/Slime/slimemovingleft.png").convert_alpha()
+enemy = pygame.image.load("Characters/Skeletons/skeleton.png").convert_alpha()
+attack = pygame.image.load("Characters/Slime/slimeattack.png").convert_alpha()
 
-# Load level assets
-SKY_SURF = pygame.image.load("graphics/level/sky.png").convert()
-GROUND_SURF = pygame.image.load("graphics/level/ground.png").convert()
-game_font = pygame.font.Font(pygame.font.get_default_font(), 50)
-score_surf = game_font.render("SCORE?", False, "Black")
-score_rect = score_surf.get_rect(center=(400, 50))
+character = pygame.transform.scale(character, (slimeconstants.characterwidth, slimeconstants.characterheight))
+charactermovingright = pygame.transform.scale(charactermovingright, (slimeconstants.characterwidth, slimeconstants.characterheight))
+charactermovingleft = pygame.transform.scale(charactermovingleft, (slimeconstants.characterwidth, slimeconstants.characterheight))
+characterstretch = pygame.transform.scale(character, (slimeconstants.characterwidth - slimeconstants.characterwidthreduction, slimeconstants.characterheight + slimeconstants.characterheightincrease))
+attack = pygame.transform.scale(attack, (slimeconstants.attackwidth, slimeconstants.attackheight))
+enemy = pygame.transform.scale(enemy, (skeletonconstants.skeletonwidth, skeletonconstants.skeletonheight))
 
-# Load sprite assets
-player_surf = pygame.image.load("graphics/player/player_walk_1.png").convert_alpha()
-player_rect = player_surf.get_rect(bottomleft=(25, GROUND_Y))
-egg_surf = pygame.image.load("graphics/egg/egg_1.png").convert_alpha()
-egg_rect = egg_surf.get_rect(bottomleft=(800, GROUND_Y))
+character_hitbox = character.get_rect(topleft = (0,0))
+charactermovingleft_hitbox = charactermovingleft.get_rect(topleft = (0,0))
+charactermovingright_hitbox = charactermovingright.get_rect(topleft = (0,0))
+characterstretch_hitbox = characterstretch.get_rect(topleft = (0,0))
+attack_hitbox = attack.get_rect(topleft = (0,0))
+enemy_hitbox = enemy.get_rect(topleft = (0,0))
 
+attacks = []
+enemies = []
+prev_attack_time = 0
+prev_skeleton_spawn_time = 0
+prev_animation_time = 0
+movementtype = "still"
+animationtype = 0
+running = True
+
+#Stuff to note:
+#Origin is in top left corner
+
+#Immediate Stuff to do:
+#Create hitboxes and use the built in collision detection of Pygame
+#Softcode the enemies more
+#Create the map
+#Create the animation of the slime jumping to the right or left for when the slime walks
 
 while running:
-    # Poll for events
     for event in pygame.event.get():
-        # pygame.QUIT --> user clicked X to close your window
         if event.type == pygame.QUIT:
             running = False
 
-        elif is_playing:
-            # When player wants to jump by pressing SPACE
-            if (
-                event.type == pygame.KEYDOWN
-                and event.key == pygame.K_SPACE
-                or event.type == pygame.MOUSEBUTTONDOWN
-            ) and player_rect.bottom >= GROUND_Y:
-                players_gravity_speed = JUMP_GRAVITY_START_SPEED
-        else:
-            # When player wants to play again by pressing SPACE
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                is_playing = True
-                egg_rect.left = 800
+    screen.fill("white")
 
-    if is_playing:
-        screen.fill("purple")  # Wipe the screen
+    #Update player movement
+    character_hitbox.x, character_hitbox.y, prev_animation_time, movementtype, animationtype = charactermovement.updatemovement(character_hitbox.x, 
+    character_hitbox.y, character, charactermovingright, charactermovingleft, characterstretch, slimeconstants.characterwidthreduction,
+    slimeconstants.characterheightincrease, screen, prev_animation_time, movementtype, animationtype, slimeconstants.animation_speed)
 
-        # Blit the level assets
-        screen.blit(SKY_SURF, (0, 0))
-        screen.blit(GROUND_SURF, (0, GROUND_Y))
-        pygame.draw.rect(screen, "#c0e8ec", score_rect)
-        pygame.draw.rect(screen, "#c0e8ec", score_rect, 10)
-        screen.blit(score_surf, score_rect)
+    #Create new attacks
+    if prev_attack_time < time.time() - slimeconstants.attack_cooldown:
+        prev_attack_time = time.time()
+        attacks.append(attackmechanism.calculate_cur_attack(character_hitbox.x, character_hitbox.y, attack_hitbox, 
+            slimeconstants.attack_speed, slimeconstants.attack_radius,
+            slimeconstants.characterheight, slimeconstants.characterwidth,
+            slimeconstants.attackheight, slimeconstants.attackwidth))
+        
+    #Spawn new skeletons
+    if prev_skeleton_spawn_time < time.time() - skeletonconstants.skeletonspawncd:
+        prev_skeleton_spawn_time = time.time()
+        enemies.append([skeletonconstants.skeletonhp, enemy_hitbox])
 
-        # Adjust egg's horizontal location then blit it
-        egg_rect.x -= 5
-        if egg_rect.right <= 0:
-            egg_rect.left = 800
-        screen.blit(egg_surf, egg_rect)
+    #Update enemies
+    alivemonsters = []
+    for monster in enemies:
+        if monster[0] > 0:
+            alivemonsters.append(monster)
+            screen.blit(enemy, enemy_hitbox)
+    enemies = alivemonsters
+        
+    attacks = attackmechanism.update_attacks(attacks, attack, screen, 
+        slimeconstants.attack_cooldown, slimeconstants.attack_radius, enemies)  
 
-        # Adjust player's vertical location then blit it
-        players_gravity_speed += 1
-        player_rect.y += players_gravity_speed
-        if player_rect.bottom > GROUND_Y:
-            player_rect.bottom = GROUND_Y
-        screen.blit(player_surf, player_rect)
-
-        # When player collides with enemy, game ends
-        if egg_rect.colliderect(player_rect):
-            is_playing = False
-
-    # When game is over, display game over message
-    else:
-        screen.fill("black")
-
-    # flip the display to put your work on screen
-    pygame.display.flip()
-
-    clock.tick(60)  # Limits game loop to 60 FPS
+    clock.tick(60)
+    pygame.display.update()
 
 pygame.quit()
