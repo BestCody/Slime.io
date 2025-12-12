@@ -8,10 +8,10 @@ def calculate_cur_attack(playerposx, playerposy, attack, attackspeed, attackradi
     starty = playerposy + (characterheight - attackheight) / 2
     attackx = mousepos[0] - startx
     attacky = mousepos[1] - starty
-    angle = 180 / math.pi * - math.atan2(attacky, attackx)
+    angle = 180 / math.pi * math.atan2(attacky, attackx)
     rotated_attack = pygame.transform.rotate(attack, int(angle))
-    normalized_x = math.cos(math.radians(-angle))
-    normalized_y = math.sin(math.radians(-angle))
+    normalized_x = math.cos(math.radians(angle))
+    normalized_y = math.sin(math.radians(angle))
     return [rotated_attack, startx, starty, normalized_x*attackspeed, normalized_y*attackspeed, 
             startx, starty]
 
