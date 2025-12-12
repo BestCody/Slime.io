@@ -43,9 +43,9 @@ running = True
 
 #Stuff to note:
 #Origin is in top left corner
+#Y axis is inverted in Pygame (increasing y goes down)
 
 #Immediate Stuff to do:
-#Create hitboxes and use the built in collision detection of Pygame
 #Softcode the enemies more
 #Create the map
 #Create the animation of the slime jumping to the right or left for when the slime walks
@@ -65,9 +65,8 @@ while running:
     #Create new attacks
     if prev_attack_time < time.time() - slimeconstants.attack_cooldown:
         prev_attack_time = time.time()
-        attacks.append(attackmechanism.calculate_cur_attack(character_hitbox.x, character_hitbox.y, attack_hitbox, 
-            slimeconstants.attack_speed, slimeconstants.attack_radius,
-            slimeconstants.characterheight, slimeconstants.characterwidth,
+        attacks.append(attackmechanism.calculate_cur_attack(character_hitbox.x, character_hitbox.y, attack, 
+            slimeconstants.attack_speed, slimeconstants.characterheight, slimeconstants.characterwidth,
             slimeconstants.attackheight, slimeconstants.attackwidth))
         
     #Spawn new skeletons
@@ -83,8 +82,8 @@ while running:
             screen.blit(enemy, enemy_hitbox)
     enemies = alivemonsters
         
-    attacks = attackmechanism.update_attacks(attacks, attack, screen, 
-        slimeconstants.attack_cooldown, slimeconstants.attack_radius, enemies)  
+    attacks = attackmechanism.update_attacks(attacks, screen, 
+    slimeconstants.attack_radius, enemies)  
 
     clock.tick(60)
     pygame.display.update()
