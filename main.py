@@ -29,7 +29,6 @@ character_hitbox = character.get_rect(topleft = (0,0))
 charactermovingleft_hitbox = charactermovingleft.get_rect(topleft = (0,0))
 charactermovingright_hitbox = charactermovingright.get_rect(topleft = (0,0))
 characterstretch_hitbox = characterstretch.get_rect(topleft = (0,0))
-attack_hitbox = attack.get_rect(topleft = (0,0))
 enemy_hitbox = enemy.get_rect(topleft = (0,0))
 
 attacks = []
@@ -81,7 +80,6 @@ while running:
             alivemonsters.append(monster)
             screen.blit(enemy, enemy_hitbox)
     enemies = alivemonsters
-        
     attacks = attackmechanism.update_attacks(attacks, screen, 
     slimeconstants.attack_radius, enemies)  
 
