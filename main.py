@@ -56,6 +56,7 @@ running = True
 #Y axis is inverted in Pygame (increasing y goes down)
 
 #Immediate Stuff to do:
+#Fix hitbox
 #Make the map infinitely generate as the player moves right
 
 while running:
@@ -114,11 +115,11 @@ while running:
     attacks = attackmechanism.update_attacks(
         attacks, 
         screen,
-        cameraoffsetx,
-        cameraoffsety, 
         slimeconstants.attack_radius, 
         enemies
     )  
+
+    pygame.draw.rect(screen, (0, 255, 0), character_hitbox, 2)
 
     clock.tick(60)
     pygame.display.update()
