@@ -19,7 +19,7 @@ screen = pygame.display.set_mode(screen_size)
 clock = pygame.time.Clock()
 screen.fill("black")
 
-character = pygame.image.load("Characters/Slime/slimestandingstill.png").convert_alpha()
+characterstill = pygame.image.load("Characters/Slime/slimestandingstill.png").convert_alpha()
 charactermovingright = pygame.image.load("Characters/Slime/slimemovingright.png").convert_alpha()
 charactermovingleft = pygame.image.load("Characters/Slime/slimemovingleft.png").convert_alpha()
 enemy = pygame.image.load("Characters/Skeletons/skeleton.png").convert_alpha()
@@ -27,20 +27,20 @@ attack = pygame.image.load("Characters/Slime/slimeattack.png").convert_alpha()
 map = pygame.image.load("Map/map.png").convert()
 
 map = pygame.transform.scale(map, (4130, 580))
-characterstill = pygame.transform.scale(character, (slimeconstants.characterwidth, slimeconstants.characterheight))
+characterstill = pygame.transform.scale(characterstill, (slimeconstants.characterwidth, slimeconstants.characterheight))
 charactermovingright = pygame.transform.scale(charactermovingright, (slimeconstants.characterwidth, slimeconstants.characterheight))
 charactermovingleft = pygame.transform.scale(charactermovingleft, (slimeconstants.characterwidth, slimeconstants.characterheight))
-characterstretch = pygame.transform.scale(character, (slimeconstants.characterstretchwidth, slimeconstants.characterstretchheight))
+characterstretch = pygame.transform.scale(characterstill, (slimeconstants.characterstretchwidth, slimeconstants.characterstretchheight))
 attack = pygame.transform.scale(attack, (slimeconstants.attackwidth, slimeconstants.attackheight))
 enemy = pygame.transform.scale(enemy, (skeletonconstants.skeletonwidth, skeletonconstants.skeletonheight))
 
-characterstill_hitbox = character.get_rect(center = (screen_size[0]//2, screen_size[1]//2))
+characterstill_hitbox = characterstill.get_rect(center = (screen_size[0]//2, screen_size[1]//2))
 charactermovingleft_hitbox = charactermovingleft.get_rect(center = (screen_size[0]//2, screen_size[1]//2))
 charactermovingright_hitbox = charactermovingright.get_rect(center = (screen_size[0]//2, screen_size[1]//2))
-characterstretch_hitbox = characterstretch.get_rect(center = (screen_size[0]//2, screen_size[1]//2))
+characterstretch_hitbox = characterstretch.get_rect(center = (screen_size[0]//2, screen_size[1]//2 - (slimeconstants.characterstretchheight - slimeconstants.characterheight)//2))
 enemy_hitbox = enemy.get_rect(topleft = (0,0))
 
-player = character
+character = characterstill
 character_hitbox = characterstill_hitbox
 attacks = []
 enemies = []
@@ -56,7 +56,6 @@ running = True
 #Y axis is inverted in Pygame (increasing y goes down)
 
 #Immediate Stuff to do:
-#Fix hitbox
 #Make the map infinitely generate as the player moves right
 
 while running:

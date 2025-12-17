@@ -10,7 +10,7 @@ def calculate_cur_attack(playerposx, playerposy, attack_img, attackspeed):
     rotated_attack = pygame.transform.rotate(attack_img, int(-angle))
     normalized_x = math.cos(math.radians(angle))
     normalized_y = math.sin(math.radians(angle))
-
+    
     return [rotated_attack, playerposx, playerposy, normalized_x*attackspeed, normalized_y*attackspeed, playerposx, playerposy]
 
 def update_attacks(attacks, screen, attackradius, enemies):
