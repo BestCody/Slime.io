@@ -7,30 +7,41 @@ from Characters.Slime import slimeconstants
 from Characters.Skeletons import skeletonconstants
 pygame.init()
 
-desktop_size = pygame.display.get_desktop_sizes()
-screen = pygame.display.set_mode()
+#Camera settings
+camerawidth = 1000
+cameraheight = 680
+cameraoffsetx = -100
+cameraoffsety = -50
+
+#Screen stuff
+screen_size = [camerawidth, cameraheight]
+screen = pygame.display.set_mode(screen_size)
 clock = pygame.time.Clock()
-screen.fill("white")
+screen.fill("black")
 
 character = pygame.image.load("Characters/Slime/slimestandingstill.png").convert_alpha()
 charactermovingright = pygame.image.load("Characters/Slime/slimemovingright.png").convert_alpha()
 charactermovingleft = pygame.image.load("Characters/Slime/slimemovingleft.png").convert_alpha()
 enemy = pygame.image.load("Characters/Skeletons/skeleton.png").convert_alpha()
 attack = pygame.image.load("Characters/Slime/slimeattack.png").convert_alpha()
+map = pygame.image.load("Map/map.png").convert()
 
-character = pygame.transform.scale(character, (slimeconstants.characterwidth, slimeconstants.characterheight))
+map = pygame.transform.scale(map, (4130, 580))
+characterstill = pygame.transform.scale(character, (slimeconstants.characterwidth, slimeconstants.characterheight))
 charactermovingright = pygame.transform.scale(charactermovingright, (slimeconstants.characterwidth, slimeconstants.characterheight))
 charactermovingleft = pygame.transform.scale(charactermovingleft, (slimeconstants.characterwidth, slimeconstants.characterheight))
-characterstretch = pygame.transform.scale(character, (slimeconstants.characterwidth - slimeconstants.characterwidthreduction, slimeconstants.characterheight + slimeconstants.characterheightincrease))
+characterstretch = pygame.transform.scale(character, (slimeconstants.characterstretchwidth, slimeconstants.characterstretchheight))
 attack = pygame.transform.scale(attack, (slimeconstants.attackwidth, slimeconstants.attackheight))
 enemy = pygame.transform.scale(enemy, (skeletonconstants.skeletonwidth, skeletonconstants.skeletonheight))
 
-character_hitbox = character.get_rect(topleft = (0,0))
-charactermovingleft_hitbox = charactermovingleft.get_rect(topleft = (0,0))
-charactermovingright_hitbox = charactermovingright.get_rect(topleft = (0,0))
-characterstretch_hitbox = characterstretch.get_rect(topleft = (0,0))
+characterstill_hitbox = character.get_rect(center = (screen_size[0]//2, screen_size[1]//2))
+charactermovingleft_hitbox = charactermovingleft.get_rect(center = (screen_size[0]//2, screen_size[1]//2))
+charactermovingright_hitbox = charactermovingright.get_rect(center = (screen_size[0]//2, screen_size[1]//2))
+characterstretch_hitbox = characterstretch.get_rect(center = (screen_size[0]//2, screen_size[1]//2))
 enemy_hitbox = enemy.get_rect(topleft = (0,0))
 
+player = character
+character_hitbox = characterstill_hitbox
 attacks = []
 enemies = []
 prev_attack_time = 0
@@ -45,43 +56,69 @@ running = True
 #Y axis is inverted in Pygame (increasing y goes down)
 
 #Immediate Stuff to do:
-#Softcode the enemies more
-#Create the map
-#Create the animation of the slime jumping to the right or left for when the slime walks
+#Make the map infinitely generate as the player moves right
 
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    screen.fill("white")
+    screen.fill("black")
 
     #Update player movement
-    character_hitbox.x, character_hitbox.y, prev_animation_time, movementtype, animationtype = charactermovement.updatemovement(character_hitbox.x, 
-    character_hitbox.y, character, charactermovingright, charactermovingleft, characterstretch, slimeconstants.characterwidthreduction,
-    slimeconstants.characterheightincrease, screen, prev_animation_time, movementtype, animationtype, slimeconstants.animation_speed)
+    character, character_hitbox, cameraoffsetx, cameraoffsety, prev_animation_time = charactermovement.updatemovement(
+        cameraoffsetx, 
+        cameraoffsety, 
+        character, 
+        character_hitbox,
+        characterstill,
+        characterstill_hitbox,
+        charactermovingright, 
+        charactermovingright_hitbox,
+        charactermovingleft, 
+        charactermovingleft_hitbox,
+        characterstretch, 
+        characterstretch_hitbox, 
+        prev_animation_time,
+        slimeconstants.animation_speed
+    )
+
+    #Draw character and map
+    screen.blit(map, (-cameraoffsetx, -cameraoffsety))
+    screen.blit(character, (character_hitbox.x, character_hitbox.y))
 
     #Create new attacks
     if prev_attack_time < time.time() - slimeconstants.attack_cooldown:
         prev_attack_time = time.time()
-        attacks.append(attackmechanism.calculate_cur_attack(character_hitbox.x, character_hitbox.y, attack, 
-            slimeconstants.attack_speed, slimeconstants.characterheight, slimeconstants.characterwidth,
-            slimeconstants.attackheight, slimeconstants.attackwidth))
+        attacks.append(attackmechanism.calculate_cur_attack(character_hitbox.centerx, character_hitbox.centery, attack, 
+            slimeconstants.attack_speed))
         
     #Spawn new skeletons
     if prev_skeleton_spawn_time < time.time() - skeletonconstants.skeletonspawncd:
         prev_skeleton_spawn_time = time.time()
-        enemies.append([skeletonconstants.skeletonhp, enemy_hitbox])
+        newskeletonhitbox = enemy.get_rect(topleft = (0, 0))
+        enemies.append([skeletonconstants.skeletonhp, newskeletonhitbox])
 
     #Update enemies
     alivemonsters = []
     for monster in enemies:
         if monster[0] > 0:
             alivemonsters.append(monster)
-            screen.blit(enemy, enemy_hitbox)
+            current_monster_hitbox = monster[1]
+            monster_x = current_monster_hitbox.x - cameraoffsetx
+            monster_y = current_monster_hitbox.y - cameraoffsety
+            screen.blit(enemy, (monster_x, monster_y))
     enemies = alivemonsters
-    attacks = attackmechanism.update_attacks(attacks, screen, 
-    slimeconstants.attack_radius, enemies)  
+
+    #Update attacks
+    attacks = attackmechanism.update_attacks(
+        attacks, 
+        screen,
+        cameraoffsetx,
+        cameraoffsety, 
+        slimeconstants.attack_radius, 
+        enemies
+    )  
 
     clock.tick(60)
     pygame.display.update()

@@ -1,29 +1,29 @@
 import pygame
 import math
 
-def calculate_cur_attack(playerposx, playerposy, attack_img, attackspeed,
-    characterheight, characterwidth, attackheight, attackwidth):
+def calculate_cur_attack(playerposx, playerposy, attack_img, attackspeed):
     mousepos = pygame.mouse.get_pos()
-    startx = playerposx + (characterwidth - attackwidth) / 2
-    starty = playerposy + (characterheight - attackheight) / 2
-    attackx = mousepos[0] - startx
-    attacky = mousepos[1] - starty
+    attackx = mousepos[0] - playerposx
+    attacky = mousepos[1] - playerposy
+
     angle = 180 / math.pi * math.atan2(attacky, attackx)
     rotated_attack = pygame.transform.rotate(attack_img, int(-angle))
     normalized_x = math.cos(math.radians(angle))
     normalized_y = math.sin(math.radians(angle))
-    return [rotated_attack, startx, starty, normalized_x*attackspeed, normalized_y*attackspeed, startx, starty]
+    
+    return [rotated_attack, playerposx, playerposy, normalized_x*attackspeed, normalized_y*attackspeed, playerposx, playerposy]
 
-def update_attacks(attacks, screen, attackradius, enemies):
+def update_attacks(attacks, screen, cameraoffsetx, cameraoffsety, attackradius, enemies):
     updated_attacks = []
     for cur_attack in attacks:
         attack_img, curx, cury, normalized_x, normalized_y, origx, origy = cur_attack
         curx += normalized_x
         cury += normalized_y
-        attack_hitbox = attack_img.get_rect(topleft=(curx, cury))
-        screen.blit(attack_img, attack_hitbox)
-        hit = False
 
+        attack_hitbox = attack_img.get_rect(topleft=(curx + cameraoffsetx, cury + cameraoffsety))
+        screen.blit(attack_img, (curx, cury))
+        
+        hit = False
         for enemy in enemies:
             if attack_hitbox.colliderect(enemy[1]):
                 enemy[0] -= 50

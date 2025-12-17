@@ -2,8 +2,8 @@ characterheight = 38
 characterwidth = 56
 
 #For stretching effect when the slime is idle
-characterwidthreduction = 5
-characterheightincrease = 15
+characterstretchwidth = 51
+characterstretchheight = 53
 animation_speed = 1 #Seconds
 
 attackheight= 15
