@@ -14,11 +14,12 @@ def updatemovement(cameraoffsetx,
                    characterstretch, 
                    characterstretch_hitbox,
                    prevtime, 
+                   curtime,
                    animation_speed):
     
     keys = pygame.key.get_pressed()
-    characterchange = False
 
+    #Update movements
     if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
         cameraoffsetx += 2 
     if keys[pygame.K_LEFT] or keys[pygame.K_a]:
@@ -28,20 +29,16 @@ def updatemovement(cameraoffsetx,
     if keys[pygame.K_UP] or keys[pygame.K_w]:
         cameraoffsety -= 2
 
-    if time.time() - prevtime > animation_speed:
-        prevtime = time.time()
-        characterchange = True
-
-    if characterchange:
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            character = charactermovingright
-            character_hitbox = charactermovingright_hitbox
-
-        elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            character = charactermovingleft
-            character_hitbox = charactermovingleft_hitbox
-
-        else:
+    #Update animation
+    if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+        character = charactermovingright
+        character_hitbox = charactermovingright_hitbox
+    elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
+        character = charactermovingleft
+        character_hitbox = charactermovingleft_hitbox
+    else:
+        if curtime - prevtime > animation_speed:
+            prevtime = curtime
             if character == characterstill:
                 character = characterstretch
                 character_hitbox = characterstretch_hitbox
