@@ -14,7 +14,7 @@ cameraoffsety = 0
 #Screen stuff
 screen_size = [camerawidth, cameraheight]
 screen = pygame.display.set_mode(screen_size)
-clock = pygame.time.Clock()
+clock = pygame.time.Clock() 
 
 characterstill = pygame.image.load("Characters/Slime/slimestandingstill.png").convert_alpha()
 charactermovingright = pygame.image.load("Characters/Slime/slimemovingright.png").convert_alpha()
