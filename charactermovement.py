@@ -43,6 +43,6 @@ def updatemovement(cameraoffsetx,
                 character_hitbox = characterstretch_hitbox
             else:
                 character = characterstill
-                character_hitbox = characterstill_hitbox    
+                character_hitbox = characterstill_hitbox   
 
     return character, character_hitbox, cameraoffsetx, cameraoffsety, prevtime

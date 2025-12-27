@@ -21,9 +21,11 @@ charactermovingright = pygame.image.load("Characters/Slime/slimemovingright.png"
 charactermovingleft = pygame.image.load("Characters/Slime/slimemovingleft.png").convert_alpha()
 enemy = pygame.image.load("Characters/Skeletons/skeleton.png").convert_alpha()
 attack = pygame.image.load("Characters/Slime/slimeattack.png").convert_alpha()
-map = pygame.image.load("Map/map.png").convert()
+map = pygame.image.load("Map/startmap.png").convert()
+map_infinite_generate = pygame.image.load("Map/map.png").convert()
 
 map = pygame.transform.scale(map, (4130, 580))
+map_infinite_generate = pygame.transform.scale(map_infinite_generate, (4130, 580))
 characterstill = pygame.transform.scale(characterstill, (slimeconstants.characterwidth, slimeconstants.characterheight))
 charactermovingright = pygame.transform.scale(charactermovingright, (slimeconstants.characterwidth, slimeconstants.characterheight))
 charactermovingleft = pygame.transform.scale(charactermovingleft, (slimeconstants.characterwidth, slimeconstants.characterheight))
@@ -56,11 +58,13 @@ screen.fill("black")
 #Origin is in top left corner
 #Y axis is inverted in Pygame (increasing y goes down)
 
-#Immediate Stuff to do:
-#Make the map infinitely generate as the player moves right
-
-#Long term stuff:
+#Features to Add:
+#Obstacles
+#Start menu
+#Cards to power up the player along the way
+#Score system
 #Enemy pathfinding (Djirkstra's algo or A* star)
+#Enemies
 
 while running:
     for event in pygame.event.get():
@@ -88,11 +92,19 @@ while running:
         curtime,
         slimeconstants.animation_speed
     )
+    cameraoffsetx = max(cameraoffsetx, -screen_size[0]/2 + 100)
+    cameraoffsety = max(cameraoffsety, -screen_size[1]/2 + 50)
+    cameraoffsety = min(cameraoffsety, -screen_size[1]/2 + map.height - 70)
     character_posx = character_hitbox.centerx + cameraoffsetx
     character_posy = character_hitbox.centery + cameraoffsety
  
     #Draw character and map
-    screen.blit(map, (-cameraoffsetx, -cameraoffsety))
+    starttile = int(cameraoffsetx / map.width)
+    for i in range(starttile, starttile + 2):
+        if i == 0:
+            screen.blit(map, (-cameraoffsetx, -cameraoffsety))
+        elif i > 0:
+            screen.blit(map_infinite_generate, ((i * map_infinite_generate.width) - cameraoffsetx, -cameraoffsety))
     screen.blit(character, character_hitbox)
 
     #Create new attacks

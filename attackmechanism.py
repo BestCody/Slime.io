@@ -18,7 +18,7 @@ def update_attacks(attacks, screen, attackradius, enemies, cameraoffsetx, camera
 
         attack_hitbox = attack_img.get_rect(topleft=(curx, cury))
         screen.blit(attack_img, (curx - cameraoffsetx, cury - cameraoffsety))
-        pygame.draw.rect(screen, (0, 255, 0), attack_hitbox, 2)
+        #pygame.draw.rect(screen, (0, 255, 0), attack_hitbox, 2)
         
         hit = False
         for enemy in enemies:
