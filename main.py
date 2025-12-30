@@ -81,7 +81,6 @@ blockage_frame_3 = pygame.transform.scale(blockage_frame_3, (blockage_frame_1.wi
 blockage_frame_4 = pygame.transform.scale(blockage_frame_4, (blockage_frame_1.width*blockage_constants.BLOCKAGE_WIDTH_SCALE_FACTOR, blockage_frame_1.height*blockage_constants.BLOCKAGE_FRAME_4_HEIGHT_SCALE_FACTOR))
 blockage_frame_1 = pygame.transform.scale(blockage_frame_1, (blockage_frame_1.width*blockage_constants.BLOCKAGE_WIDTH_SCALE_FACTOR, blockage_frame_1.height*blockage_constants.BLOCKAGE_FRAME_1_HEIGHT_SCALE_FACTOR))
 blockage_frames = [blockage_frame_1, blockage_frame_2, blockage_frame_3, blockage_frame_4, blockage_frame_3, blockage_frame_2, blockage_frame_1]
-num_blockages = 0
 blockages = []
 prev_blockage_spawn_time = 0
 
@@ -102,7 +101,6 @@ snake_attack_frame_1 = pygame.transform.scale(snake_attack_frame_1, (snake_attac
 snake_attack_sprite = pygame.transform.scale(snake_attack_sprite, (snake_attack_sprite.width*snake_constants.SNAKE_PROJECTILE_WIDTH_SCALE_FACTOR, snake_attack_sprite.height*snake_constants.SNAKE_PROJECTILE_HEIGHT_SCALE_FACTOR))
 snake_attack_frames = [snake_idle, snake_attack_frame_1]
 
-ENEMIES_SAFE_ZONE_TILES = 3
 ENEMIES_SPAWN_MIN = 4
 ENEMIES_SPAWN_CAP = 6
 enemies = []
