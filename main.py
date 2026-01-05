@@ -138,7 +138,6 @@ score_font = pygame.font.Font(None, 30)
 #Score system
 #Enemy pathfinding (Djirkstra's algo or A* star)
 
-#Make the attack mechanism more general by creating an attack type for the player and another for the enemy
 #Remember to ask teacher if I can use matrix (Already implemented)
 
 while running:
