@@ -76,10 +76,10 @@ blockage_frame_1 = pygame.image.load("obstacles/blockage/blockage_frame_1.png").
 blockage_frame_2 = pygame.image.load("obstacles/blockage/blockage_frame_2.png").convert_alpha()
 blockage_frame_3 = pygame.image.load("obstacles/blockage/blockage_frame_3.png").convert_alpha()
 blockage_frame_4 = pygame.image.load("obstacles/blockage/blockage_frame_4.png").convert_alpha()
-blockage_frame_2 = pygame.transform.scale(blockage_frame_2, (blockage_frame_1.width*blockage_constants.BLOCKAGE_WIDTH_SCALE_FACTOR, blockage_frame_1.height*blockage_constants.BLOCKAGE_FRAME_2_HEIGHT_SCALE_FACTOR))
-blockage_frame_3 = pygame.transform.scale(blockage_frame_3, (blockage_frame_1.width*blockage_constants.BLOCKAGE_WIDTH_SCALE_FACTOR, blockage_frame_1.height*blockage_constants.BLOCKAGE_FRAME_3_HEIGHT_SCALE_FACTOR))
-blockage_frame_4 = pygame.transform.scale(blockage_frame_4, (blockage_frame_1.width*blockage_constants.BLOCKAGE_WIDTH_SCALE_FACTOR, blockage_frame_1.height*blockage_constants.BLOCKAGE_FRAME_4_HEIGHT_SCALE_FACTOR))
-blockage_frame_1 = pygame.transform.scale(blockage_frame_1, (blockage_frame_1.width*blockage_constants.BLOCKAGE_WIDTH_SCALE_FACTOR, blockage_frame_1.height*blockage_constants.BLOCKAGE_FRAME_1_HEIGHT_SCALE_FACTOR))
+blockage_frame_2 = pygame.transform.scale(blockage_frame_2, (blockage_constants.BLOCKAGE_WIDTH, blockage_constants.BLOCKAGE_FRAME_2_HEIGHT))
+blockage_frame_3 = pygame.transform.scale(blockage_frame_3, (blockage_constants.BLOCKAGE_WIDTH, blockage_constants.BLOCKAGE_FRAME_3_HEIGHT))
+blockage_frame_4 = pygame.transform.scale(blockage_frame_4, (blockage_constants.BLOCKAGE_WIDTH, blockage_constants.BLOCKAGE_FRAME_4_HEIGHT))
+blockage_frame_1 = pygame.transform.scale(blockage_frame_1, (blockage_constants.BLOCKAGE_WIDTH, blockage_constants.BLOCKAGE_FRAME_1_HEIGHT))
 blockage_frames = [blockage_frame_1, blockage_frame_2, blockage_frame_3, blockage_frame_4, blockage_frame_3, blockage_frame_2, blockage_frame_1]
 blockages = []
 prev_blockage_spawn_time = 0
@@ -137,6 +137,7 @@ score_font = pygame.font.Font(None, 30)
 #Cards to power up the player along the way
 #Score system
 #Enemy pathfinding (Djirkstra's algo or A* star)
+#Make enemies too far away from the player to despawn!!!
 
 #Remember to ask teacher if I can use matrix (Already implemented)
 
