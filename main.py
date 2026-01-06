@@ -9,6 +9,7 @@ from obstacles.arrow import arrow_constants
 from enemies.skeleton import skeleton_constants
 from enemies.snake import snake_constants
 pygame.init()
+pygame.mixer.init()
 
 #Camera settings
 camerawidth = 1000
@@ -45,14 +46,16 @@ prev_attack_time = 0
 prev_animation_time = 0
 character_health = slime_constants.CHARACTER_HEALTH
 health_font = pygame.font.Font(None, 30)
-SAFE_ZONE_TILES = 10
+SAFE_ZONE_TILES = 20
 attacks = []
 
 #Backgrounds
 map = pygame.image.load("background/start_map.png").convert()
 map_infinite_generate = pygame.image.load("background/infinite_map.png").convert()
 play_screen = pygame.image.load("background/play_screen.png").convert()
+manual = pygame.image.load("background/manual.png").convert()
 play_screen = pygame.transform.scale(play_screen, (screen_size[0], screen_size[1]))
+manual = pygame.transform.scale(manual, (screen_size[0], screen_size[1]))
 map = pygame.transform.scale(map, (4130, 580))
 map_infinite_generate = pygame.transform.scale(map_infinite_generate, (4130, 580))
 NUM_BOX_TILES_X = 20
@@ -76,11 +79,18 @@ blockage_frame_1 = pygame.image.load("obstacles/blockage/blockage_frame_1.png").
 blockage_frame_2 = pygame.image.load("obstacles/blockage/blockage_frame_2.png").convert_alpha()
 blockage_frame_3 = pygame.image.load("obstacles/blockage/blockage_frame_3.png").convert_alpha()
 blockage_frame_4 = pygame.image.load("obstacles/blockage/blockage_frame_4.png").convert_alpha()
+blockage_frame_5 = pygame.image.load("obstacles/blockage/blockage_frame_5.png").convert_alpha()
+blockage_frame_6 = pygame.image.load("obstacles/blockage/blockage_frame_6.png").convert_alpha()
+blockage_frame_7 = pygame.image.load("obstacles/blockage/blockage_frame_7.png").convert_alpha()
+
+blockage_frame_1 = pygame.transform.scale(blockage_frame_1, (blockage_constants.BLOCKAGE_WIDTH, blockage_constants.BLOCKAGE_FRAME_1_HEIGHT))
 blockage_frame_2 = pygame.transform.scale(blockage_frame_2, (blockage_constants.BLOCKAGE_WIDTH, blockage_constants.BLOCKAGE_FRAME_2_HEIGHT))
 blockage_frame_3 = pygame.transform.scale(blockage_frame_3, (blockage_constants.BLOCKAGE_WIDTH, blockage_constants.BLOCKAGE_FRAME_3_HEIGHT))
 blockage_frame_4 = pygame.transform.scale(blockage_frame_4, (blockage_constants.BLOCKAGE_WIDTH, blockage_constants.BLOCKAGE_FRAME_4_HEIGHT))
-blockage_frame_1 = pygame.transform.scale(blockage_frame_1, (blockage_constants.BLOCKAGE_WIDTH, blockage_constants.BLOCKAGE_FRAME_1_HEIGHT))
-blockage_frames = [blockage_frame_1, blockage_frame_2, blockage_frame_3, blockage_frame_4, blockage_frame_3, blockage_frame_2, blockage_frame_1]
+blockage_frame_5 = pygame.transform.scale(blockage_frame_5, (blockage_constants.BLOCKAGE_WIDTH, blockage_constants.BLOCKAGE_FRAME_5_HEIGHT))
+blockage_frame_6 = pygame.transform.scale(blockage_frame_6, (blockage_constants.BLOCKAGE_WIDTH, blockage_constants.BLOCKAGE_FRAME_6_HEIGHT))
+blockage_frame_7 = pygame.transform.scale(blockage_frame_7, (blockage_constants.BLOCKAGE_WIDTH, blockage_constants.BLOCKAGE_FRAME_7_HEIGHT))
+blockage_frames = [blockage_frame_1, blockage_frame_2, blockage_frame_3, blockage_frame_4, blockage_frame_5, blockage_frame_6, blockage_frame_7, blockage_frame_6, blockage_frame_5, blockage_frame_4]
 blockages = []
 prev_blockage_spawn_time = 0
 
@@ -103,6 +113,7 @@ snake_attack_frames = [snake_idle, snake_attack_frame_1]
 
 ENEMIES_SPAWN_MIN = 4
 ENEMIES_SPAWN_CAP = 6
+DESPAWN_DISTANCE = 1000
 enemies = []
 
 #Other settings and stuff:
@@ -137,7 +148,8 @@ score_font = pygame.font.Font(None, 30)
 #Cards to power up the player along the way
 #Score system
 #Enemy pathfinding (Djirkstra's algo or A* star)
-#Make enemies too far away from the player to despawn!!!
+#Fix the boundaries, sometimes snakes and skeletons spawn at the edge of the map
+#Make the red indicator spawn at the edge of the screen even when obstacle is offscreen
 
 #Remember to ask teacher if I can use matrix (Already implemented)
 
@@ -150,6 +162,7 @@ while running:
 
     mouse_pos = pygame.mouse.get_pos()
     mouse_pressed = pygame.mouse.get_pressed()
+    keys = pygame.key.get_pressed()
 
     if game_state == "in_menu":
         screen.blit(play_screen, (0, 0))
@@ -160,24 +173,28 @@ while running:
         menu_score_font = pygame.font.Font("fonts/menu_score_font.ttf", 40)
         max_score_text = menu_score_font.render(f"{max_score}", False, (0, 0, 0))
         screen.blit(max_score_text, (screen_size[0] - max_score_text.get_width() - 20, screen_size[1] - max_score_text.get_height() - 60))
-        
         if play_button_hitbox.collidepoint(mouse_pos):
             pygame.draw.rect(screen, (255, 255, 0), play_button_hitbox, 2)
+            if mouse_pressed[0]:
+                game_state = "play"
         elif manual_button_hitbox.collidepoint(mouse_pos):
             pygame.draw.rect(screen, (255, 255, 0), manual_button_hitbox, 2)
+            if mouse_pressed[0]:
+                game_state = "in_manual"
         elif settings_button_hitbox.collidepoint(mouse_pos):
             pygame.draw.rect(screen, (255, 255, 0), settings_button_hitbox, 2)
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE] or mouse_pressed[0] and play_button_hitbox.collidepoint(mouse_pos):
-            game_state = "play"
+    
+    elif game_state == "in_manual":
+        screen.blit(manual, (0,0))
+        if keys[pygame.K_ESCAPE]:
+            game_state = "in_menu"
 
     else:
         cursor = ingame_cursor
         screen.fill("black")
         curtime = pygame.time.get_ticks()
 
-        #print("Character HP " + str(character_health))
-        if character_health <= 0:
+        if character_health <= 0 or keys[pygame.K_ESCAPE]:
             game_state = "in_menu"
             with open("score.txt", 'a') as file:
                 file.write(str(score) + '\n')
@@ -198,6 +215,7 @@ while running:
             prev_arrow_spawn_time = 0
             prev_blockage_spawn_time = 0
             score = 0
+            cursor = menu_cursor
 
         #Update player movement
         character, character_hitbox, cameraoffsetx, cameraoffsety, prev_animation_time = character_movement.updatemovement(
@@ -315,7 +333,7 @@ while running:
 
         if len(blockages) < blockage_constants.BLOCKAGE_SPAWN_CAP and prev_blockage_spawn_time < curtime - blockage_constants.BLOCKAGE_COOLDOWN:
             prev_blockage_spawn_time = curtime
-            boxtile = max(random.randint(top_box_tile_x_player - 1, top_box_tile_x_player + 1), SAFE_ZONE_TILES)
+            boxtile = max(random.randint(top_box_tile_x_player + 1, top_box_tile_x_player + 3), SAFE_ZONE_TILES)
             blockage_x = boxtile * TOP_BOX_WIDTH
             blockage_y = TOP_BOX_START_Y
             for i in range(NUM_BOX_TILES_Y):
@@ -340,6 +358,10 @@ while running:
         #Update enemies
         for enemy in enemies:
             if enemy[2] <= 0:
+                enemies.remove(enemy)
+            elif len(enemy) == 16 and math.hypot(enemy[-4] - character_posx, enemy[-3] - character_posy) > DESPAWN_DISTANCE:
+                enemies.remove(enemy)
+            elif len(enemy) == 15 and math.hypot(enemy[-3] - character_posx, enemy[-2] - character_posy) > DESPAWN_DISTANCE:
                 enemies.remove(enemy)
             else:
                 if len(enemy) == 16: #Ranged
