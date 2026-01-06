@@ -150,7 +150,6 @@ score_font = pygame.font.Font(None, 30)
 #Score system
 #Enemy pathfinding (Djirkstra's algo or A* star)
 #Fix the boundaries, sometimes snakes and skeletons spawn at the edge of the map
-#Make the red indicator spawn at the edge of the screen even when obstacle is offscreen
 
 #Remember to ask teacher if I can use matrix (Already implemented)
 
