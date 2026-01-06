@@ -8,6 +8,7 @@ from obstacles.blockage import blockage_constants
 from obstacles.arrow import arrow_constants
 from enemies.skeleton import skeleton_constants
 from enemies.snake import snake_constants
+from indicators.red_star_indicator import red_star_indicator_constants
 pygame.init()
 pygame.mixer.init()
 
@@ -359,16 +360,16 @@ while running:
         for enemy in enemies:
             if enemy[2] <= 0:
                 enemies.remove(enemy)
-            elif len(enemy) == 16 and math.hypot(enemy[-4] - character_posx, enemy[-3] - character_posy) > DESPAWN_DISTANCE:
+            elif enemy[0] == "ranged" and math.hypot(enemy[-4] - character_posx, enemy[-3] - character_posy) > DESPAWN_DISTANCE:
                 enemies.remove(enemy)
-            elif len(enemy) == 15 and math.hypot(enemy[-3] - character_posx, enemy[-2] - character_posy) > DESPAWN_DISTANCE:
+            elif enemy[0] == "melee" and math.hypot(enemy[-3] - character_posx, enemy[-2] - character_posy) > DESPAWN_DISTANCE:
                 enemies.remove(enemy)
             else:
-                if len(enemy) == 16: #Ranged
+                if enemy[0] == "ranged":
                     row = int((enemy[-3] - MIDDLE_BOX_START_Y) // MIDDLE_BOX_HEIGHT)
                     col = int((enemy[-4] - MIDDLE_BOX_START_X) // MIDDLE_BOX_WIDTH)
                     occupied[row % NUM_BOX_TILES_Y][col % NUM_BOX_TILES_X] = True
-                else: #Melee
+                else:
                     row = int((enemy[-2] - MIDDLE_BOX_START_Y) // MIDDLE_BOX_HEIGHT)
                     col = int((enemy[-3] - MIDDLE_BOX_START_X) // MIDDLE_BOX_WIDTH)
                     occupied[row % NUM_BOX_TILES_Y][col % NUM_BOX_TILES_X] = True
