@@ -1,48 +1,31 @@
 import pygame
 
-def updatemovement(cameraoffsetx, 
-                   cameraoffsety, 
-                   character, 
-                   character_hitbox, 
-                   characterstill,
-                   characterstill_hitbox,
-                   charactermovingright, 
-                   charactermovingright_hitbox,
-                   charactermovingleft,
-                   charactermovingleft_hitbox,
-                   characterstretch, 
-                   characterstretch_hitbox,
-                   prevtime, 
-                   curtime,
-                   animation_speed):
-    
-    keys = pygame.key.get_pressed()
-
+def updatemovement(character, keys, curtime, dt):
     #Update movements
     if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-        cameraoffsetx += 2 
+        character["camera_offsetx"] += (character["speed"] * dt)
     if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-        cameraoffsetx -= 2
+        character["camera_offsetx"] -= (character["speed"] * dt)
     if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-        cameraoffsety += 2
+        character["camera_offsety"] += (character["speed"] * dt)
     if keys[pygame.K_UP] or keys[pygame.K_w]:
-        cameraoffsety -= 2
+        character["camera_offsety"] -= (character["speed"] * dt)
 
     #Update animation
     if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-        character = charactermovingright
-        character_hitbox = charactermovingright_hitbox
+        character["sprite"] = character["moving_right_sprite"]
+        character["hitbox"] = character["moving_right_hitbox"]
+        character["cur_idle_frame"] = 0
     elif keys[pygame.K_LEFT] or keys[pygame.K_a]:
-        character = charactermovingleft
-        character_hitbox = charactermovingleft_hitbox
+        character["sprite"] = character["moving_left_sprite"]
+        character["hitbox"] = character["moving_left_hitbox"]
+        character["cur_idle_frame"] = 0
     else:
-        if curtime - prevtime > animation_speed:
-            prevtime = curtime
-            if character == characterstill:
-                character = characterstretch
-                character_hitbox = characterstretch_hitbox
-            else:
-                character = characterstill
-                character_hitbox = characterstill_hitbox   
+        if curtime - character["prev_animation_time"] > character["animation_cd"]:
+            character["prev_animation_time"] = curtime
+            character["cur_idle_frame"] %= len(character["idle_anims"])
+            character["sprite"] = character["idle_anims"][character["cur_idle_frame"]]
+            character["hitbox"] = character["idle_hitbox"][character["cur_idle_frame"]]
+            character["cur_idle_frame"] += 1
 
-    return character, character_hitbox, cameraoffsetx, cameraoffsety, prevtime
+    return character
