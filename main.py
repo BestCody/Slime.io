@@ -7,6 +7,7 @@ import character_movement
 import attack_mechanism
 import image_process
 import enemy_movement
+import scores.score_functions as score_functions
 
 #Importing constants
 from characters.slime import slime_constants
@@ -184,6 +185,7 @@ play_screen = (
     pygame.image.load("background/play_screen.png").convert()
 )
 manual = pygame.image.load("background/manual.png").convert()
+settings = pygame.image.load("background/settings.png").convert()
 play_screen = pygame.transform.scale(
     play_screen, 
     (
@@ -195,6 +197,13 @@ manual = pygame.transform.scale(
     manual, 
     (
         screen_size[0], 
+        screen_size[1]
+    )
+)
+settings = pygame.transform.scale(
+    settings,
+    (
+        screen_size[0],
         screen_size[1]
     )
 )
@@ -373,7 +382,6 @@ for i in range(len(blockage_frames)):
     )
 
 #Enemies
-
 #Skeleton image loading and scaling
 skeleton_idle = (
     pygame.image.load("enemies/skeleton/skeleton_idle.png")
@@ -523,10 +531,20 @@ running = True
 score_font = pygame.font.Font(None, 30)
 menu_score_font = pygame.font.Font("fonts/menu_score_font.ttf", 40)
 
-max_score = 0
-with open ("score.txt", 'r') as file:
-    for line in file:
-        max_score = max(max_score, int(line.strip()))
+SCORE_FILES = {
+    "easy": "scores/score_easy.txt",
+    "medium": "scores/score_medium.txt",
+    "hard": "scores/score_hard.txt"
+}
+
+SCORE_HEALTH_SCALERS = {
+    "easy": 4,
+    "medium": 1,
+    "hard": 0.5
+}
+
+cur_diff = "medium"
+max_score = score_functions.calc_max_score(cur_diff, SCORE_FILES)
 
 while running:
     #Getting needed input for future calculations
@@ -538,7 +556,7 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             max_score = max(game_data["score"], max_score)
-            with open("score.txt", 'w') as file:
+            with open(SCORE_FILES[cur_diff], 'w') as file:
                 file.write(str(max_score) + '\n')
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -547,8 +565,16 @@ while running:
             if game_data["game_state"] == "in_menu":
                 if menu_constants.PLAY_BUTTON_HITBOX.collidepoint(mouse_pos):
                     game_data["game_state"] = "play"
+                    left_click = False
+                    scaler = SCORE_HEALTH_SCALERS[cur_diff]
+                    player["health"] *= scaler
+                    player["orig_health"] = player["health"]
                 elif menu_constants.MANUAL_BUTTON_HITBOX.collidepoint(mouse_pos):
                     game_data["game_state"] = "in_manual"
+                    left_click = False
+                elif menu_constants.SETTINGS_BUTTON_HITBOX.collidepoint(mouse_pos):
+                    game_data["game_state"] = "in_settings"
+                    left_click = False
 
     if game_data["game_state"] == "in_menu":
         screen.blit(play_screen, (0, 0))
@@ -578,7 +604,60 @@ while running:
                              menu_constants.SETTINGS_BUTTON_HITBOX, 2)
     
     elif game_data["game_state"] == "in_manual":
-        screen.blit(manual, (0,0))
+        screen.blit(manual, (0, 0))
+        if keys[pygame.K_ESCAPE]:
+            game_data["game_state"] = "in_menu"
+
+    elif game_data["game_state"] == "in_settings":
+        screen.blit(settings, (0, 0))
+        easy_diff_hitbox = menu_constants.EASY_DIFFICULTY_HITBOX
+        med_diff_hitbox = menu_constants.MEDIUM_DIFFICULTY_HITBOX
+        hard_diff_hitbox = menu_constants.HARD_DIFFICULTY_HITBOX
+        if easy_diff_hitbox.collidepoint(mouse_pos):
+            pygame.draw.rect(
+                screen, 
+                (0, 0, 0), 
+                easy_diff_hitbox, 
+                2
+            )
+            if left_click:
+                cur_diff = "easy"
+                max_score = score_functions.calc_max_score(
+                    cur_diff,
+                    SCORE_FILES
+                )
+                game_data["game_state"] = "in_menu"
+            
+        elif med_diff_hitbox.collidepoint(mouse_pos):
+            pygame.draw.rect(
+                screen, 
+                (0, 0, 0), 
+                med_diff_hitbox, 
+                2
+            )
+            if left_click:
+                cur_diff = "medium"
+                max_score = score_functions.calc_max_score(
+                    cur_diff,
+                    SCORE_FILES
+                )
+                game_data["game_state"] = "in_menu"     
+            
+        elif hard_diff_hitbox.collidepoint(mouse_pos):
+            pygame.draw.rect(
+                screen, 
+                (0, 0, 0), 
+                hard_diff_hitbox, 
+                2
+            )
+            if left_click:
+                cur_diff = "hard"
+                max_score = score_functions.calc_max_score(
+                    cur_diff,
+                    SCORE_FILES
+                )
+                game_data["game_state"] = "in_menu"
+            
         if keys[pygame.K_ESCAPE]:
             game_data["game_state"] = "in_menu"
 
@@ -589,7 +668,7 @@ while running:
 
         if player["health"] <= 0 or keys[pygame.K_ESCAPE]:
             max_score = max(game_data["score"], max_score)
-            with open("score.txt", 'w') as file:
+            with open(SCORE_FILES[cur_diff], 'w') as file:
                 file.write(str(max_score) + '\n')
             player = create_slime_player()
             game_data = create_game_data()
@@ -1173,6 +1252,7 @@ while running:
         if game_data["pending_card_picks"] > 0:
             screen.blit(card_picker, card_picker_rect)
             if card_picker_rect.collidepoint(mouse_pos) and left_click:
+                left_click = False
                 game_data["show_cards"] = not game_data["show_cards"]
                 if game_data["show_cards"]:
                     game_data["card_animation_index"] = 0
@@ -1213,6 +1293,7 @@ while running:
 
             for i in range(len(card_rect)):
                 if card_rect[i].collidepoint(mouse_pos) and left_click:
+                    left_click = False
                     game_data["show_cards"] = False
                     if cur_cards[i]["have_icon"]:
                         cur_cards[i]["command"](player, cur_cards[i]["icon"])

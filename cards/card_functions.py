@@ -16,7 +16,7 @@ def buff_attack(player):
         player["melee_damage"] += 1
 
 def buff_health(player):
-    player["health"] += 100
+    player["health"] += 250
 
 def buff_defense(player):
     player["defense"] += 5
