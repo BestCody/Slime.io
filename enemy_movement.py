@@ -189,7 +189,7 @@ def update_enemy_pos(game_data, player, num_tiles_x, num_tiles_y):
             )
             if reached_target:
                 enemy["target_x"] = None
-                enemy["wait_timer"] = random.randint(1000, 3000)
+                enemy["wait_timer"] = random.randint(800, 1400)
 
         enemy["hitbox"].x = int(enemy["x"])
         enemy["hitbox"].y = int(enemy["y"])
