@@ -1163,6 +1163,7 @@ while running:
 					skeleton_hitbox = skeleton_idle.get_rect(
 						topleft=(enemy_x, enemy_y)
 					)
+					
 					game_data["enemies"].append({
 						"attack_type": (
 							skeleton_constants.
@@ -1204,7 +1205,7 @@ while running:
 						"wait_timer": 0,                 
 						"melee_prev_animation_upd": curtime
 					})
-		
+	
 		enemy_movement.update_enemy_pos(
 			game_data, 
 			player, 
