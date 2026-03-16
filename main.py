@@ -341,7 +341,7 @@ cards = {
 		"name": "scatter",
 		"sprite": scatter_card,
 		"command": card_functions.scatter,
-		"chance": 5,
+		"chance": 9999,
 		"icon": scatter_ability_icon,
 		"have_icon": True
 	}
